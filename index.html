@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login & Weather Dashboard</title>
+
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+        const { useState } = React;
+
+        function App() {
+            const [page, setPage] = useState('login');
+            const [user, setUser] = useState('');
+
+            const handleLogin = (username, password) => {
+                if (username === 'admin' && password === '1234') {
+                    setUser(username);
+                    setPage('dashboard');
+                } else {
+                    alert('Invalid credentials');
+                }
+            };
+
+            return (
+                <div>
+                    {page === 'login' ? (
+                        <Login onLogin={handleLogin} />
+                    ) : (
+                        <Dashboard user={user} />
+                    )}
+                </div>
+            );
+        }
+
+        function Login({ onLogin }) {
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+
+            return (
+                <div className="flex justify-center items-center h-screen">
+                    <form onSubmit={(e) => { e.preventDefault(); onLogin(username, password); }}
+                        className="bg-white p-8 rounded shadow-md w-80">
+                        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+                        <input
+                            className="w-full border mb-3 p-2 rounded"
+                            placeholder="Username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
+                        <input
+                            className="w-full border mb-4 p-2 rounded"
+                            placeholder="Password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                            Login
+                        </button>
+                    </form>
+                </div>
+            );
+        }
+
+        function Dashboard({ user }) {
+            const [city, setCity] = useState('Chennai');
+            const [weather, setWeather] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            const getWeather = async () => {
+                const API_KEY ="3a245a419b7f01433f0dfb885d1c8e9e"; // <-- Replace this with your real API key
+                try {
+                    setLoading(true);
+                    const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
+                    setWeather(response.data);
+                } catch (error) {
+                    alert('Error fetching weather!');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="p-6">
+                    <h1 className="text-2xl font-bold mb-4">Welcome, {user}</h1>
+                    <div className="mb-4">
+                        <input
+                            className="border p-2 mr-2 rounded"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            placeholder="Enter city"
+                        />
+                        <button onClick={getWeather} className="bg-green-500 text-white p-2 rounded hover:bg-green-600">
+                            Get Weather
+                        </button>
+                    </div>
+
+                    {loading && <p>Loading...</p>}
+
+                    {weather && (
+                        <div className="bg-white p-4 rounded shadow w-64">
+                            <h2 className="text-xl font-semibold">{weather.name}</h2>
+                            <p>Temp: {weather.main.temp} °C</p>
+                            <p>{weather.weather[0].description}</p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
