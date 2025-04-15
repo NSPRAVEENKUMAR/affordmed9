@@ -1,161 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
+function Login({ onLogin }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-<head>
-  <meta charset="UTF-8">
-  <title>Login & Weather Dashboard</title>
-
-  <!-- React & ReactDOM -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-
-  <!-- Babel -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Axios -->
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-  <style>
-    .fade-in {
-      animation: fadeInScale 0.8s ease forwards;
-    }
-
-    @keyframes fadeInScale {
-      0% {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-  </style>
-</head>
-
-<body class="bg-gradient-to-br from-blue-100 to-purple-200 min-h-screen">
-  <div id="root"></div>
-
-  <script type="text/babel">
-    const { useState } = React;
-
-    function App() {
-      const [page, setPage] = useState('login');
-      const [user, setUser] = useState('');
-
-      const handleLogin = (username, password) => {
-        if (username.trim() === 'admin' && password.trim() === '1234') {
-          setUser(username);
-          setPage('dashboard');
-        } else {
-          alert('username is admin or password 1234');
-        }
-      };
-
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          {page === 'login' ? (
-            <Login onLogin={handleLogin} />
-          ) : (
-            <Dashboard user={user} />
-          )}
+  return (
+    <div className="fade-in w-full max-w-sm bg-white shadow-2xl rounded-2xl p-8">
+      <h2 className="text-3xl font-extrabold text-center mb-6 text-blue-700 tracking-wide">Welcome Back 👋</h2>
+      <form onSubmit={(e) => { e.preventDefault(); onLogin(username, password); }}>
+        <div className="mb-5">
+          <label className="block mb-1 text-gray-700 font-medium">Username</label>
+          <input
+            type="text"
+            placeholder="Enter username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <p className="text-sm text-gray-500 mt-1">Hint: <span className="font-semibold text-blue-600">admin</span></p>
         </div>
-      );
-    }
 
-    function Login({ onLogin }) {
-      const [username, setUsername] = useState('');
-      const [password, setPassword] = useState('');
-
-      return (
-        <div className="fade-in w-full max-w-sm bg-white shadow-xl rounded-xl p-8">
-          <h2 className="text-3xl font-extrabold text-center mb-6 text-blue-700">Welcome Back</h2>
-          <form onSubmit={(e) => { e.preventDefault(); onLogin(username, password); }}>
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold transition-transform hover:scale-105 hover:bg-blue-700"
-            >
-              Login
-            </button>
-          </form>
+        <div className="mb-6">
+          <label className="block mb-1 text-gray-700 font-medium">Password</label>
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <p className="text-sm text-gray-500 mt-1">Hint: <span className="font-semibold text-blue-600">1234</span></p>
         </div>
-      );
-    }
 
-    function Dashboard({ user }) {
-      const [city, setCity] = useState('Chennai');
-      const [weather, setWeather] = useState(null);
-      const [loading, setLoading] = useState(false);
-
-      const getWeather = async () => {
-        const API_KEY = "3a245a419b7f01433f0dfb885d1c8e9e";
-        try {
-          setLoading(true);
-          const response = await axios.get(
-            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-          );
-          setWeather(response.data);
-        } catch (error) {
-          alert('Error fetching weather!');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      return (
-        <div className="fade-in w-full max-w-md bg-white p-6 rounded-xl shadow-xl">
-          <h1 className="text-2xl font-bold mb-4 text-purple-700">Welcome, {user}</h1>
-
-          <div className="flex mb-4">
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="Enter city"
-              className="flex-grow px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-            <button
-              onClick={getWeather}
-              className="bg-purple-600 text-white px-4 rounded-r-lg transition-transform hover:scale-105 hover:bg-purple-700"
-            >
-              Get Weather
-            </button>
-          </div>
-
-          {loading && <p className="text-gray-600">Loading...</p>}
-
-          {weather && (
-            <div className="mt-4 p-4 bg-purple-100 rounded-lg shadow fade-in">
-              <h2 className="text-xl font-semibold text-purple-800">{weather.name}</h2>
-              <p className="text-lg">🌡️ Temp: {weather.main.temp} °C</p>
-              <p className="capitalize">☁️ {weather.weather[0].description}</p>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
-</body>
-
-</html>
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 rounded-lg font-semibold text-lg shadow-md hover:scale-105 transition-transform duration-300 ease-in-out"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+  );
+}
